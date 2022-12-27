@@ -1,14 +1,38 @@
 package org.example.NumericConverter.service;
 
+import org.example.NumericConverter.exception.InvalidBaseExeption;
+import org.example.NumericConverter.exception.InvalidInputNumberException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class Converter {
-    public static String convertGeneral(int inputBase, int outputBase, String inputNumber) {
+    private final static int MIN_BASE = 2;
+    private final static int MAX_BASE = 16;
+
+    public static String convertGeneral(int inputBase, int outputBase, String inputNumber)
+    throws InvalidBaseExeption {
+        if(inputBase < MIN_BASE || inputBase > MAX_BASE) {
+            throw new InvalidBaseExeption("Input base has to be in the range between 2 and 16");
+        }
+        if(outputBase < MIN_BASE || outputBase > MAX_BASE) {
+            throw new InvalidBaseExeption("Output base has to be in range between 2 and 16");
+        }
+        if(!checkInputNumber(inputBase, inputNumber)) {
+            throw new InvalidInputNumberException("Input number does not correspond input base");
+        }
         long decimalNumber = convertToDecimal(inputBase, inputNumber);
         return iterativeConvertFromDecimal(outputBase, decimalNumber);
+    }
+
+    private static boolean checkInputNumber(int inputBase, String inputNumber) {
+        for (int i = 0; i < inputNumber.length(); ++i) {
+            if (Character.digit(inputNumber.charAt(i), inputBase) == -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static String iterativeConvertFromDecimal(int outputBase, long inputNumber) {
